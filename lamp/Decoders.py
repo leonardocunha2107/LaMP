@@ -98,7 +98,7 @@ class GraphDecoder(nn.Module):
             self, n_tgt_vocab, n_max_seq, n_layers=6, n_head=8,n_head2=8, d_k=64, d_v=64,
             d_word_vec=512, d_model=512, d_inner_hid=1024, dropout=0.1,dropout2=0.1,
             no_dec_self_att=False,label_adj_matrix=None,label_mask=None,
-            enc_vec=True,graph_conv=False,attn_type='softmax'):
+            enc_vec=True,graph_conv=False,attn_type='softmax',less_attn=False):
         super(GraphDecoder, self).__init__()
         self.enc_vec = enc_vec
         self.dropout = nn.Dropout(dropout)
@@ -120,8 +120,19 @@ class GraphDecoder(nn.Module):
                 NotImplementedError
         
         self.layer_stack = nn.ModuleList()
-        for _ in range(n_layers):
-            self.layer_stack.append(DecoderLayer(d_model, d_inner_hid, n_head,n_head2, d_k, d_v, dropout=dropout,dropout2=dropout2,no_dec_self_att=no_dec_self_att,attn_type=attn_type))           
+        
+        ##changes made to make model more dependendant on the encoding of each node
+        if less_attn:
+            self.layer_stack.append(DecoderLayer(d_model, d_inner_hid, n_head,n_head2, d_k, d_v, dropout=dropout,
+                                                 dropout2=dropout2,no_dec_self_att=no_dec_self_att,attn_type=attn_type))           
+            for _ in range(n_layers-1):
+                            self.layer_stack.append(DecoderLayer(d_model, d_inner_hid, n_head,n_head2, d_k, d_v, dropout=dropout,
+                                                                 dropout2=dropout2,no_dec_self_att=no_dec_self_att,attn_type=attn_type,no_enc_attn=True))           
+
+        else:
+            for _ in range(n_layers):
+                self.layer_stack.append(DecoderLayer(d_model, d_inner_hid, n_head,n_head2, d_k, d_v, 
+                                                     dropout=dropout,dropout2=dropout2,no_dec_self_att=no_dec_self_att,attn_type=attn_type))           
 
 
     def forward(self, tgt, src_seq, enc_output,return_attns=False, int_preds=False):
@@ -136,7 +147,8 @@ class GraphDecoder(nn.Module):
         dec_enc_attn_pad_mask = None
         if not self.enc_vec:
             dec_enc_attn_pad_mask = utils.get_attn_padding_mask(tgt_seq, src_seq[:,0:enc_output.size(1)])
-
+        
+        ###changes mostly here on defining attn_mask 
         if self.label_mask is not None:
             dec_slf_attn_mask = self.label_mask.repeat(batch_size,1,1).cuda().byte()
         else:

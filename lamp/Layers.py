@@ -21,9 +21,10 @@ class EncoderLayer(nn.Module):
 
 class DecoderLayer(nn.Module):
     def __init__(self, d_model, d_inner_hid, n_head,n_head2, d_k, d_v,dropout=0.1,dropout2=False,
-        no_dec_self_att=False,ffn=True,attn_type='softmax'):
+        no_dec_self_att=False,ffn=True,attn_type='softmax',no_enc_attn=False):
         super(DecoderLayer, self).__init__()
-        self.enc_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
+        if not no_enc_attn:
+            self.enc_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
         self.pos_ffn1 = PositionwiseFeedForward(d_model, d_inner_hid, dropout=dropout)
 
         if not no_dec_self_att:
@@ -32,7 +33,10 @@ class DecoderLayer(nn.Module):
         self.pos_ffn2 = PositionwiseFeedForward(d_model, d_inner_hid, dropout=dropout)
         
     def forward(self, dec_input, enc_output,slf_attn_mask=None,dec_enc_attn_mask=None):
-        dec_output, dec_enc_attn = self.enc_attn(dec_input, enc_output, enc_output, attn_mask=dec_enc_attn_mask)
+        if self.enc_attn:
+            dec_output, dec_enc_attn = self.enc_attn(dec_input, enc_output, enc_output, attn_mask=dec_enc_attn_mask)
+        else:
+            dec_output, dec_enc_attn=dec_input,None
         dec_output = self.pos_ffn1(dec_output)
 
         if hasattr(self, 'slf_attn'):
