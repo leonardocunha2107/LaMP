@@ -102,7 +102,7 @@ class GraphDecoder(nn.Module):
         super(GraphDecoder, self).__init__()
         self.enc_vec = enc_vec
         self.dropout = nn.Dropout(dropout)
-        self.constant_input = torch.from_numpy(np.arange(n_tgt_vocab)).view(-1,1)
+        self.constant_input = torch.arange(n_tgt_vocab).view(-1,1)
 
         self.tgt_word_emb = nn.Embedding(n_tgt_vocab, d_word_vec)
         

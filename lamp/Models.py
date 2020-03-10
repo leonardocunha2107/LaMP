@@ -116,10 +116,9 @@ class LAMP(nn.Module):
         enc_output, *enc_self_attns = self.encoder(src_seq, adj, src_pos,return_attns=return_attns)
         dec_output, *dec_output2 = self.decoder(tgt_seq,src_seq,enc_output,return_attns=return_attns,int_preds=int_preds)
 
-        if self.decoder_type == 'rnn_m':
+        if self.decoder_type in ('rnn_m','mlp') :
             seq_logit = dec_output
-        elif self.decoder_type == 'mlp':
-            seq_logit = dec_output
+
         else:
             seq_logit = self.tgt_word_proj(dec_output)
             if self.decoder_type == 'graph':
