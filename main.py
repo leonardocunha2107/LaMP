@@ -55,6 +55,7 @@ def main(opt):
 
 	#========= Preparing Model =========#
 	model = LAMP(
+        opt,
 		opt.src_vocab_size,
 		opt.tgt_vocab_size,
 		opt.max_token_seq_len_e,

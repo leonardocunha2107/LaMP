@@ -9,6 +9,8 @@ from lamp.SubLayers import PositionwiseFeedForward
 from lamp.SubLayers import XavierLinear
 from lamp.Encoders import MLPEncoder,GraphEncoder,RNNEncoder
 from lamp.Decoders import MLPDecoder,RNNDecoder,GraphDecoder
+from lamp.mask_handler import TrimHandler
+
 from pdb import set_trace as stop 
 from lamp import utils
 import copy
@@ -17,7 +19,7 @@ import copy
 
 class LAMP(nn.Module):
     def __init__(
-            self, n_src_vocab, n_tgt_vocab, n_max_seq_e,n_max_seq_d, n_layers_enc=6,n_layers_dec=6,
+            self,opt, n_src_vocab, n_tgt_vocab, n_max_seq_e,n_max_seq_d, n_layers_enc=6,n_layers_dec=6,
             n_head=8,n_head2=8,d_word_vec=512, d_model=512, d_inner_hid=1024, d_k=64, d_v=64,
             dropout=0.1, dec_dropout=0.1,dec_dropout2=0.1, proj_share_weight=True, embs_share_weight=True, 
             encoder='selfatt',decoder='sa_m',enc_transform='',onehot=False,no_enc_pos_embedding=False,
@@ -74,8 +76,12 @@ class LAMP(nn.Module):
                 d_inner_hid=d_inner_hid, dropout=dec_dropout, enc_transform=enc_transform)
         else:
             raise NotImplementedError
-
-
+        
+        self.mask_handler=None
+        if opt.mask_handler=='trim':
+            eps=opt.trim_eps if opt.trim_eps else None
+            cache_every=500 if not opt.crop_every else 500
+            self.mask_handler=TrimHandler(n_tgt_vocab,opt,)
         
         bias = False
         if self.decoder_type in ['mlp','graph','star'] and not proj_share_weight:

@@ -35,8 +35,7 @@ class DecoderLayer(nn.Module):
     def forward(self, dec_input, enc_output,slf_attn_mask=None,dec_enc_attn_mask=None):
         if self.enc_attn:
             dec_output, dec_enc_attn = self.enc_attn(dec_input, enc_output, enc_output, attn_mask=dec_enc_attn_mask)
-        else:
-            dec_output, dec_enc_attn=dec_input,None
+        else:            dec_output, dec_enc_attn=dec_input,None
         dec_output = self.pos_ffn1(dec_output)
 
         if hasattr(self, 'slf_attn'):

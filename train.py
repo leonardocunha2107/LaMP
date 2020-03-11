@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 
 
-def train_epoch(model,train_data, crit, optimizer,adv_optimizer,epoch,data_dict,opt):
+def train_epoch(model,train_data, crit, optimizer,adv_optimizer,epoch,data_dict,opt,logger):
 	model.train()
 
 	out_len = (opt.tgt_vocab_size) if opt.binary_relevance else (opt.tgt_vocab_size-1)
@@ -37,6 +37,7 @@ def train_epoch(model,train_data, crit, optimizer,adv_optimizer,epoch,data_dict,
 			norm_pred = F.sigmoid(pred)
 			bce_loss =  F.binary_cross_entropy_with_logits(pred, gold_binary,reduction='mean')
 			loss += bce_loss
+            logger.push_loss(loss)
 			bce_total += bce_loss.item()
 			if opt.int_preds and not opt.matching_mlp:
 				for i in range(len(results[0])):
@@ -54,6 +55,7 @@ def train_epoch(model,train_data, crit, optimizer,adv_optimizer,epoch,data_dict,
 			optimizer.zero_grad()
 			pred,enc_output,*results = model(src,adj,tgt,None,int_preds=opt.int_preds)
 			loss = crit(F.log_softmax(pred), gold.contiguous().view(-1))
+            logger.push_loss(loss)
 			pred = F.softmax(pred,dim=1)
 			pred_vals,pred_idxs = pred.max(1)
 			pred_vals = pred_vals.view(gold.size()).data.cpu()

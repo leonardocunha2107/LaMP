@@ -12,14 +12,15 @@ from tqdm import tqdm
 from train import train_epoch
 from test import test_epoch
 warnings.filterwarnings("ignore")
-
+from utils.logger import Logger
 def run_model(model, train_data, valid_data, test_data, crit, optimizer,adv_optimizer,scheduler, opt, data_dict):
-	logger = evals.Logger(opt)
+	#logger = evals.Logger(opt)
 	
 	valid_losses = []
 
 	losses = []
-
+    train_logger=Logger(opt)
+    val_logger=Logger(opt)
 	if opt.test_only:
 		start = time.time()
 		all_predictions, all_targets, test_loss = test_epoch(model, test_data,opt,data_dict,'(Testing)')
@@ -40,7 +41,7 @@ def run_model(model, train_data, valid_data, test_data, crit, optimizer,adv_opti
 
 		################################## TRAIN ###################################
 		start = time.time()
-		all_predictions,all_targets,train_loss=train_epoch(model,train_data,crit,optimizer,adv_optimizer,(epoch_i+1),data_dict,opt)
+		all_predictions,all_targets,train_loss=train_epoch(model,train_data,crit,optimizer,adv_optimizer,(epoch_i+1),data_dict,opt,train_logger)
 		elapsed = ((time.time()-start)/60)
 		print('\n(Training) elapse: {elapse:3.3f} min'.format(elapse=elapsed))
 		train_loss = train_loss/len(train_data._src_insts)
@@ -50,7 +51,7 @@ def run_model(model, train_data, valid_data, test_data, crit, optimizer,adv_opti
 			torch.save(all_predictions,path.join(opt.model_name,'epochs','train_preds'+str(epoch_i+1)+'.pt'))
 			torch.save(all_targets,path.join(opt.model_name,'epochs','train_targets'+str(epoch_i+1)+'.pt'))
 		train_metrics = evals.compute_metrics(all_predictions,all_targets,0,opt,elapsed,all_metrics=True)  
-
+        train_logger.push_metrics(train_metrics)
 		################################### VALID ###################################
 		start = time.time()
 		all_predictions, all_targets,valid_loss = test_epoch(model, valid_data,opt,data_dict,'(Validation)')
@@ -62,10 +63,11 @@ def run_model(model, train_data, valid_data, test_data, crit, optimizer,adv_opti
 		torch.save(all_predictions,path.join(opt.model_name,'epochs','valid_preds'+str(epoch_i+1)+'.pt'))
 		torch.save(all_targets,path.join(opt.model_name,'epochs','valid_targets'+str(epoch_i+1)+'.pt'))
 		valid_metrics = evals.compute_metrics(all_predictions,all_targets,0,opt,elapsed,all_metrics=True)
-		valid_losses += [valid_loss]
+		valid_logger.push_metrics(valid_metrics)
+        valid_losses += [valid_loss]
 
 		################################## TEST ###################################
-		start = time.time()
+		"""start = time.time()
 		all_predictions, all_targets, test_loss = test_epoch(model, test_data,opt,data_dict,'(Testing)')
 		elapsed = ((time.time()-start)/60)
 		print('\n(Testing) elapse: {elapse:3.3f} min'.format(elapse=elapsed))
@@ -75,7 +77,7 @@ def run_model(model, train_data, valid_data, test_data, crit, optimizer,adv_opti
 		torch.save(all_predictions,path.join(opt.model_name,'epochs','test_preds'+str(epoch_i+1)+'.pt'))
 		torch.save(all_targets,path.join(opt.model_name,'epochs','test_targets'+str(epoch_i+1)+'.pt'))
 		test_metrics = evals.compute_metrics(all_predictions,all_targets,0,opt,elapsed,all_metrics=True)
-		
+		"""
 		best_valid,best_test = logger.evaluate(train_metrics,valid_metrics,test_metrics,epoch_i,opt.total_num_parameters)
 
 		print(opt.model_name)
@@ -84,7 +86,10 @@ def run_model(model, train_data, valid_data, test_data, crit, optimizer,adv_opti
 		
 		if not 'test' in opt.model_name and not opt.test_only:
 			utils.save_model(opt,epoch_i,model,valid_loss,valid_losses)
-
+        
+        log={'train':train_logger.log,'valid':valid_logger.log}
+        log_path=(opt.model_name if opt.model_name else ' ') +str(epoch_i+1)
+        torch.save(log,log_path)
 		loss_file.write(str(int(epoch_i+1)))
 		loss_file.write(','+str(train_loss))
 		loss_file.write(','+str(valid_loss))
