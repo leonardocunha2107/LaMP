@@ -17,6 +17,12 @@ args = get_args(parser)
 opt = config_args(args)
 
 
+"""
+Extra options:
+    
+    -mask_handler: trim,
+    -trim_eps=0.5         (if att_i < eps/num_nodes then trim i)
+"""
 
 def main(opt):
 	#========= Loading Dataset =========#
@@ -55,6 +61,7 @@ def main(opt):
 
 	#========= Preparing Model =========#
 	model = LAMP(
+        opt,
 		opt.src_vocab_size,
 		opt.tgt_vocab_size,
 		opt.max_token_seq_len_e,

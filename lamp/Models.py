@@ -9,6 +9,8 @@ from lamp.SubLayers import PositionwiseFeedForward
 from lamp.SubLayers import XavierLinear
 from lamp.Encoders import MLPEncoder,GraphEncoder,RNNEncoder
 from lamp.Decoders import MLPDecoder,RNNDecoder,GraphDecoder
+from lamp.mask_handler import TrimHandler
+
 from pdb import set_trace as stop 
 from lamp import utils
 import copy
@@ -17,7 +19,7 @@ import copy
 
 class LAMP(nn.Module):
     def __init__(
-            self, n_src_vocab, n_tgt_vocab, n_max_seq_e,n_max_seq_d, n_layers_enc=6,n_layers_dec=6,
+            self,opt, n_src_vocab, n_tgt_vocab, n_max_seq_e,n_max_seq_d, n_layers_enc=6,n_layers_dec=6,
             n_head=8,n_head2=8,d_word_vec=512, d_model=512, d_inner_hid=1024, d_k=64, d_v=64,
             dropout=0.1, dec_dropout=0.1,dec_dropout2=0.1, proj_share_weight=True, embs_share_weight=True, 
             encoder='selfatt',decoder='sa_m',enc_transform='',onehot=False,no_enc_pos_embedding=False,
@@ -60,7 +62,7 @@ class LAMP(nn.Module):
                 d_word_vec=d_word_vec, d_model=d_model,d_k=d_k, d_v=d_v,
                 d_inner_hid=d_inner_hid, dropout=dec_dropout)
         elif decoder == 'graph':
-            self.decoder = GraphDecoder(
+            self.decoder = GraphDecoder(opt,
                 n_tgt_vocab, n_max_seq_d, n_layers=n_layers_dec, n_head=n_head,
                 n_head2=n_head2,d_word_vec=d_word_vec, d_model=d_model,d_k=d_k, d_v=d_v,
                 d_inner_hid=d_inner_hid, dropout=dec_dropout,dropout2=dec_dropout2,
@@ -74,8 +76,7 @@ class LAMP(nn.Module):
                 d_inner_hid=d_inner_hid, dropout=dec_dropout, enc_transform=enc_transform)
         else:
             raise NotImplementedError
-
-
+        
         
         bias = False
         if self.decoder_type in ['mlp','graph','star'] and not proj_share_weight:
@@ -116,10 +117,9 @@ class LAMP(nn.Module):
         enc_output, *enc_self_attns = self.encoder(src_seq, adj, src_pos,return_attns=return_attns)
         dec_output, *dec_output2 = self.decoder(tgt_seq,src_seq,enc_output,return_attns=return_attns,int_preds=int_preds)
 
-        if self.decoder_type == 'rnn_m':
+        if self.decoder_type in ('rnn_m','mlp') :
             seq_logit = dec_output
-        elif self.decoder_type == 'mlp':
-            seq_logit = dec_output
+
         else:
             seq_logit = self.tgt_word_proj(dec_output)
             if self.decoder_type == 'graph':
