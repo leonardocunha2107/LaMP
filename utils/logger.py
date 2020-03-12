@@ -5,7 +5,7 @@ class Logger:
     def __init__(self,opt,tag):
         self.mean_every=opt.mean_every if opt.mean_every else 2000
         self.tag=tag
-        self.num_nodes=opt.n_tgt_vocab 
+        self.num_nodes=opt.tgt_vocab_size
         self.att=[torch.zeros(self.num_nodes,self.num_nodes),0]
         self.loss_log=[]
         self.att_log=[]
