@@ -36,7 +36,7 @@ def train_epoch(model,train_data, crit, optimizer,adv_optimizer,epoch,data_dict,
     			pred,enc_output,*results = model(src,adj,None,gold_binary,return_attns=opt.attns_loss,int_preds=opt.int_preds)
     			norm_pred = F.sigmoid(pred)
     			bce_loss =  F.binary_cross_entropy_with_logits(pred, gold_binary,reduction='mean')
-    			loss,_ += bce_loss,logger.push_loss(loss)
+    			loss+= bce_loss;logger.push_loss(loss)
     			bce_total += bce_loss.item()
     			if opt.int_preds and not opt.matching_mlp:
     				for i in range(len(results[0])):
@@ -74,3 +74,6 @@ def train_epoch(model,train_data, crit, optimizer,adv_optimizer,epoch,data_dict,
     		
     	
     return all_predictions, all_targets, bce_total
+			
+			
+			
