@@ -1,2 +1,5 @@
 all_data/*
 private/*
+data/
+*.csv
+*__pycache__/
