@@ -25,7 +25,7 @@ class Logger:
             
 class Summary:
     def __init__(self,opt):
-        self.exp_name=opt.exp_name if opt.exo_name else "base_exp"
+        self.exp_name=opt.exo_name if opt.exo_name else "base_exp"
         
         self.sw=SummaryWriter(self.exp_name)
     def add_log(self,log):
