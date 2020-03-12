@@ -6,6 +6,8 @@ import torch, torch.nn as nn, torch.nn.functional as F
 import lamp.Constants as Constants
 from lamp.Models import LAMP
 from lamp.Translator import translate
+from lamp.logger import Logger,Summary
+
 from config_args import config_args,get_args
 from pdb import set_trace as stop
 from tqdm import tqdm
@@ -19,8 +21,8 @@ def run_model(model, train_data, valid_data, test_data, crit, optimizer,adv_opti
 	valid_losses = []
 
 	losses = []
-    train_logger=Logger(opt)
-    val_logger=Logger(opt)
+    train_logger=Logger(opt,'train')
+    valid_logger=Logger(opt,'valid')
 	if opt.test_only:
 		start = time.time()
 		all_predictions, all_targets, test_loss = test_epoch(model, test_data,opt,data_dict,'(Testing)')
@@ -35,6 +37,7 @@ def run_model(model, train_data, valid_data, test_data, crit, optimizer,adv_opti
 
 	loss_file = open(path.join(opt.model_name,'losses.csv'),'w+')
 	for epoch_i in range(opt.epoch):
+        summary=Summary(opt)
 		print('================= Epoch', epoch_i+1, '=================')
 		if scheduler and opt.lr_decay > 0: scheduler.step()
 
@@ -87,9 +90,10 @@ def run_model(model, train_data, valid_data, test_data, crit, optimizer,adv_opti
 		if not 'test' in opt.model_name and not opt.test_only:
 			utils.save_model(opt,epoch_i,model,valid_loss,valid_losses)
         
-        log={'train':train_logger.log,'valid':valid_logger.log}
-        log_path=(opt.model_name if opt.model_name else ' ') +str(epoch_i+1)
-        torch.save(log,log_path)
+        summary.add_log(train_logger.log)
+        summary.add_log(valid_logger.log)
+        summary.close()
+        
 		loss_file.write(str(int(epoch_i+1)))
 		loss_file.write(','+str(train_loss))
 		loss_file.write(','+str(valid_loss))

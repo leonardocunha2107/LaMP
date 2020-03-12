@@ -62,7 +62,7 @@ class LAMP(nn.Module):
                 d_word_vec=d_word_vec, d_model=d_model,d_k=d_k, d_v=d_v,
                 d_inner_hid=d_inner_hid, dropout=dec_dropout)
         elif decoder == 'graph':
-            self.decoder = GraphDecoder(
+            self.decoder = GraphDecoder(opt,
                 n_tgt_vocab, n_max_seq_d, n_layers=n_layers_dec, n_head=n_head,
                 n_head2=n_head2,d_word_vec=d_word_vec, d_model=d_model,d_k=d_k, d_v=d_v,
                 d_inner_hid=d_inner_hid, dropout=dec_dropout,dropout2=dec_dropout2,
@@ -77,11 +77,6 @@ class LAMP(nn.Module):
         else:
             raise NotImplementedError
         
-        self.mask_handler=None
-        if opt.mask_handler=='trim':
-            eps=opt.trim_eps if opt.trim_eps else None
-            cache_every=500 if not opt.crop_every else 500
-            self.mask_handler=TrimHandler(n_tgt_vocab,opt,)
         
         bias = False
         if self.decoder_type in ['mlp','graph','star'] and not proj_share_weight:
