@@ -22,6 +22,7 @@ Extra options:
     
     -mask_handler: trim,
     -trim_eps=0.5         (if att_i < eps/num_nodes then trim i)
+    -exo_name (experiment name)
 """
 
 def main(opt):
