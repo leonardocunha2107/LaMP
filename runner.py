@@ -17,17 +17,15 @@ warnings.filterwarnings("ignore")
 from utils.logger import Logger
 def run_model(model, train_data, valid_data, test_data, crit, optimizer,adv_optimizer,scheduler, opt, data_dict):
 	#logger = evals.Logger(opt)
-	
-	valid_losses = []
-
-	losses = []
+    valid_losses = []
+    losses = []
     train_logger=Logger(opt,'train')
     valid_logger=Logger(opt,'valid')
-	if opt.test_only:
-		start = time.time()
-		all_predictions, all_targets, test_loss = test_epoch(model, test_data,opt,data_dict,'(Testing)')
-		elapsed = ((time.time()-start)/60)
-		print('\n(Testing) elapse: {elapse:3.3f} min'.format(elapse=elapsed))
+    if opt.test_only:
+        start = time.time()
+        all_predictions, all_targets, test_loss = test_epoch(model, test_data,opt,data_dict,'(Testing)')
+        elapsed = ((time.time()-start)/60)
+        print('\n(Testing) elapse: {elapse:3.3f} min'.format(elapse=elapsed))
 		test_loss = test_loss/len(test_data._src_insts)
 		print('B : '+str(test_loss))
 
