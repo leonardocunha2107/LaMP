@@ -77,6 +77,7 @@ def get_args(parser):
     parser.add_argument('-crop_every',type=int,default=500)
     parser.add_argument('-less_attn',action='store_true')
     parser.add_argument('-mean_every',type=int,default=1000)
+    parser.add_argument('-p', type=float, default=None)  ##p-norm 
     opt = parser.parse_args()
     return opt
 
