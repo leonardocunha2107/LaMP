@@ -24,7 +24,7 @@ class TrimHandler:
             self.cache/=self.cache.sum()
             idx=self.cache<self.eps/self.n  ##eps * 1/n
             self.graph[idx]=0
-            self.n-=idx.sum().data()
+            self.n-=idx.sum().data
 
             self.cache=torch.zeros(self.num_nodes,self.num_nodes)
     def get_mask(self,batch_size):

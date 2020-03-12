@@ -15,7 +15,7 @@ class Logger:
     def push_metrics(self,metrics):
         self.metrics_log.append(metrics)
     def push_loss(self,loss):
-        self.loss_log.append(loss.data())
+        self.loss_log.append(loss.data)
     def push_attentions(self,att):
         self.att[0]+=att.sum(axis=0)
         self.att[1]+=att.size(0)
