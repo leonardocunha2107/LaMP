@@ -74,7 +74,8 @@ def get_args(parser):
     parser.add_argument('-exo_name', type=str, default='base')
     parser.add_argument('-trim_eps', type=float, default=0.5)
     parser.add_argument('-mask_handler',type=str,default=None)
-
+    parser.add_argument('-crop_every',type=int,default=500)
+    parser.add_argument('-less_attn',action='store_true')
 
     opt = parser.parse_args()
     return opt

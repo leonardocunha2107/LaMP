@@ -99,7 +99,7 @@ class GraphDecoder(nn.Module):
             self,opt, n_tgt_vocab, n_max_seq, n_layers=6, n_head=8,n_head2=8, d_k=64, d_v=64,
             d_word_vec=512, d_model=512, d_inner_hid=1024, dropout=0.1,dropout2=0.1,
             no_dec_self_att=False,label_adj_matrix=None,label_mask=None,
-            enc_vec=True,graph_conv=False,attn_type='softmax',less_attn=False):
+            enc_vec=True,graph_conv=False,attn_type='softmax'):
         super(GraphDecoder, self).__init__()
         self.enc_vec = enc_vec
         self.dropout = nn.Dropout(dropout)
@@ -128,7 +128,7 @@ class GraphDecoder(nn.Module):
             eps=opt.trim_eps if opt.trim_eps else 0.5
             crop_every=500 if not opt.crop_every else 500
             self.mask_handler=TrimHandler(n_tgt_vocab,crop_every=crop_every,eps=eps)
-        if less_attn:
+        if opt.less_attn:
             self.layer_stack.append(DecoderLayer(d_model, d_inner_hid, n_head,n_head2, d_k, d_v, dropout=dropout,
                                                  dropout2=dropout2,no_dec_self_att=no_dec_self_att,attn_type=attn_type))           
             for _ in range(n_layers-1):
