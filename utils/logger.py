@@ -11,8 +11,9 @@ class Logger:
         self.att_log=[]
         self.metrics_log=[]
         self.log={'tag':tag,'loss':self.loss_log,'att':self.att_log,
-                  'metrics':self.metrics}
-        
+                  'metrics':self.metrics_log}
+    def push_metrics(self,metrics):
+        self.metrics_log.append(metrics)
     def push_loss(self,loss):
         self.loss_log.append(loss.data())
     def push_attentions(self,att):
