@@ -9,6 +9,7 @@ from lamp.SubLayers import PositionwiseFeedForward
 from lamp.SubLayers import XavierLinear
 from pdb import set_trace as stop 
 from lamp import utils
+from lamp.mask_handler import TrimHandler
 import copy
 
 
@@ -122,9 +123,9 @@ class GraphDecoder(nn.Module):
         self.layer_stack = nn.ModuleList()
         
         ##changes made to make model more dependendant on the encoding of each node
-                self.mask_handler=None
+        self.mask_handler=None
         if opt.mask_handler=='trim':
-            eps=opt.trim_eps if opt.trim_eps else None
+            eps=opt.trim_eps if opt.trim_eps else 0.5
             crop_every=500 if not opt.crop_every else 500
             self.mask_handler=TrimHandler(n_tgt_vocab,crop_every=crop_every,eps=eps)
         if less_attn:

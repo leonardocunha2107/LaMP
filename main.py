@@ -17,6 +17,12 @@ args = get_args(parser)
 opt = config_args(args)
 
 
+"""
+Extra options:
+    
+    -mask_handler: trim,
+    -trim_eps=0.5         (if att_i < eps/num_nodes then trim i)
+"""
 
 def main(opt):
 	#========= Loading Dataset =========#
