@@ -61,7 +61,7 @@ def run_model(
 
         return
 
-    loss_file = open(path.join(opt.model_name, 'losses.csv'), 'w+')
+    #loss_file = open(path.join(opt.model_name, 'losses.csv'), 'w+')
     for epoch_i in range(opt.epoch):
         print ('================= Epoch', epoch_i + 1,
                '=================')
@@ -147,11 +147,11 @@ def run_model(
         summary.add_log(train_logger.log)
         summary.add_log(valid_logger.log)
         summary.close()
-
+"""
         loss_file.write(str(int(epoch_i + 1)))
         loss_file.write(',' + str(train_loss))
         loss_file.write(',' + str(valid_loss))
         loss_file.write(',' + str(test_loss))
         loss_file.write('\n')
-
+"""
 
