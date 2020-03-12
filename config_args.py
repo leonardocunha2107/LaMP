@@ -76,7 +76,7 @@ def get_args(parser):
     parser.add_argument('-mask_handler',type=str,default=None)
     parser.add_argument('-crop_every',type=int,default=500)
     parser.add_argument('-less_attn',action='store_true')
-
+    parser.add_argument('-mean_every',type=int,default=1000)
     opt = parser.parse_args()
     return opt
 
