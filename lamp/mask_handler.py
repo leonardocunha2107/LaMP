@@ -29,7 +29,7 @@ class TrimHandler:
             self.cache=torch.zeros(self.num_nodes,self.num_nodes)
     def get_mask(self,batch_size):
         with torch.no_grad():
-            return (1-self.graph).unsqueeze(0).cuda().repeat(batch_size,1,1).type(torch.bool)
+            return (1-self.graph).type(torch.BoolType).unsqueeze(0).cuda().repeat(batch_size,1,1)
         
         
         

@@ -118,10 +118,10 @@ def run_model(
         valid_loss = valid_loss / len(valid_data._src_insts)
         print ('B : ' + str(valid_loss))
 
-        torch.save(all_predictions, path.join(opt.model_name, 'epochs',
+        """torch.save(all_predictions, path.join(opt.model_name, 'epochs',
                    'valid_preds' + str(epoch_i + 1) + '.pt'))
         torch.save(all_targets, path.join(opt.model_name, 'epochs',
-                   'valid_targets' + str(epoch_i + 1) + '.pt'))
+                   'valid_targets' + str(epoch_i + 1) + '.pt'))"""
         valid_metrics = evals.compute_metrics(
             all_predictions,
             all_targets,
@@ -140,10 +140,10 @@ def run_model(
         print (opt.model_name)
 
         losses.append([epoch_i + 1, train_loss, valid_loss, test_loss])
-
-        if not 'test' in opt.model_name and not opt.test_only:
-            utils.save_model(opt, epoch_i, model, valid_loss,
-                             valid_losses)
+        
+#        if not 'test' in opt.model_name and not opt.test_only:
+ #           utils.save_model(opt, epoch_i, model, valid_loss,
+  #                           valid_losses)
 
         summary.add_log(train_logger.log)
         summary.add_log(valid_logger.log)
