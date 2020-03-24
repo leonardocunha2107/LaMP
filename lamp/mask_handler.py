@@ -7,12 +7,12 @@ class TrimHandler:
         self.num_nodes,self.n=num_nodes,num_nodes**2
         self.eps=eps
         
-        self.cache=torch.zeros(num_nodes,num_nodes).cuda()
+        self.cache=torch.zeros(num_nodes,num_nodes)
         self.t=0
-        #self.log=[torch.zeros(num_nodes,num_nodes)]
     def push(self,attns):
         self.t+=attns.shape[0]
-        self.cache+=attns.sum(axis=0)
+        with torch.no_grad():
+            self.cache+=attns.sum(axis=0).cpu()
         #self.log[-1]+=attns.data()  ##MWW
         
         """if self.t%self.cache_every==0:
@@ -25,7 +25,7 @@ class TrimHandler:
             self.graph[idx]=0
             self.n-=idx.sum().data
 
-            self.cache=torch.zeros(self.num_nodes,self.num_nodes).cuda()
+            self.cache=torch.zeros(self.num_nodes,self.num_nodes)
     def get_mask(self,batch_size):
         with torch.no_grad():
             return (1-self.graph).type(torch.bool).unsqueeze(0).cuda().repeat(batch_size,1,1)
