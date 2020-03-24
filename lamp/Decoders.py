@@ -158,7 +158,7 @@ class GraphDecoder(nn.Module):
         if self.mask_handler:
             dec_slf_attn_mask=self.mask_handler.get_mask(batch_size)
         elif self.label_mask is not None:
-            dec_slf_attn_mask = self.label_mask.repeat(batch_size,1,1).cuda().byte()
+            dec_slf_attn_mask = self.label_mask.type(torch.bool).repeat(batch_size,1,1).cuda()
         else:
             dec_slf_attn_mask = None
             
@@ -168,10 +168,7 @@ class GraphDecoder(nn.Module):
             
             if self.mask_handler and idx==1 and  dec_slf_attn:
                 self.mask_handler.push(dec_slf_attn)
-                
-            
-            
-            
+                         
             
             if int_preds:
                 if dec_output_int is not None:
