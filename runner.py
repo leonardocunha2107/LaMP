@@ -99,7 +99,7 @@ def run_model(
         train_metrics = evals.compute_metrics(
             all_predictions,
             all_targets,
-            0,
+            train_loss,
             opt,
             elapsed,
             all_metrics=True,
@@ -125,7 +125,7 @@ def run_model(
         valid_metrics = evals.compute_metrics(
             all_predictions,
             all_targets,
-            0,
+            valid_loss,
             opt,
             elapsed,
             all_metrics=True,
