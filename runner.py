@@ -106,7 +106,7 @@ def run_model(
             )
 
         train_logger.push_metrics(train_metrics)
-
+        train_logger.push_loss(train_loss)
         # ################################## VALID ###################################
 
         start = time.time()
@@ -132,14 +132,14 @@ def run_model(
             )
 
         valid_logger.push_metrics(valid_metrics)
-
-        valid_losses += [valid_loss]
+        valid_logger.push_loss(valid_loss)
+        #valid_losses += [valid_loss]
 
         # ################################# TEST ###################################
 
         print (opt.model_name)
 
-        losses.append([epoch_i + 1, train_loss, valid_loss, test_loss])
+        #losses.append([epoch_i + 1, train_loss, valid_loss, test_loss])
         
 #        if not 'test' in opt.model_name and not opt.test_only:
  #           utils.save_model(opt, epoch_i, model, valid_loss,
