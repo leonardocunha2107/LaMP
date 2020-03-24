@@ -154,8 +154,10 @@ class GraphDecoder(nn.Module):
         if not self.enc_vec:
             dec_enc_attn_pad_mask = utils.get_attn_padding_mask(tgt_seq, src_seq[:,0:enc_output.size(1)])
         
-        ###changes mostly here on defining attn_mask 
-        if self.label_mask is not None:
+        ###changes mostly here on defining attn_mask
+        if self.mask_handler:
+            dec_slf_attn_mask=self.mask_handler.get_mask(batch_size)
+        elif self.label_mask is not None:
             dec_slf_attn_mask = self.label_mask.repeat(batch_size,1,1).cuda().byte()
         else:
             dec_slf_attn_mask = None
@@ -163,7 +165,14 @@ class GraphDecoder(nn.Module):
         dec_output = dec_input
         for idx,dec_layer in enumerate(self.layer_stack):
             dec_output, dec_output_int, dec_slf_attn, dec_enc_attn = dec_layer(dec_output, enc_output,slf_attn_mask=dec_slf_attn_mask,dec_enc_attn_mask=dec_enc_attn_pad_mask)
-
+            
+            if self.mask_handler and idx==1 and  dec_slf_attn:
+                self.mask_handler.push(dec_slf_attn)
+                
+            
+            
+            
+            
             if int_preds:
                 if dec_output_int is not None:
                     int_outs += [dec_output_int]

@@ -31,7 +31,7 @@ class Summary:
     def add_log(self,log):
         tag=self.exp_name+log['tag']
         for i,loss in enumerate(log['loss']):
-            sw.add_scalars(tag,{'loss':loss},i)
-        sw.add_scalars(tag,log['metrics'],0)
+            self.sw.add_scalars(tag,{'loss':loss},i)
+        self.sw.add_scalars(tag,log['metrics'],0)
     def close(self):
         self.sw.close()
