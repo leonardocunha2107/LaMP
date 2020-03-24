@@ -88,13 +88,14 @@ def run_model(
         print ('\n(Training) elapse: {elapse:3.3f} min'.format(elapse=elapsed))
         train_loss = train_loss / len(train_data._src_insts)
         print ('B : ' + str(train_loss))
-
+        """
         if 'reuters' in opt.dataset or 'bibtext' in opt.dataset:
             torch.save(all_predictions, path.join(opt.model_name,
                        'epochs', 'train_preds' + str(epoch_i + 1)
                        + '.pt'))
             torch.save(all_targets, path.join(opt.model_name, 'epochs',
                        'train_targets' + str(epoch_i + 1) + '.pt'))
+        """
         train_metrics = evals.compute_metrics(
             all_predictions,
             all_targets,
