@@ -17,10 +17,10 @@ class Logger:
     def push_loss(self,loss):
         self.loss_log.append(loss)
     def push_attentions(self,att):
-        self.att[0]+=att.sum(axis=0)
+        self.att[0]+=att.cpu().sum(axis=0)
         self.att[1]+=att.size(0)
         if self.att[1]>=self.mean_every:
-            self.att_log.append(self.att[0])/self.att[1])
+            self.att_log.append(self.att[0]/self.att[1])
             self.att=[torch.zeros(self.num_nodes,self.num_nodes),0]
             
 class Summary:
