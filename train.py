@@ -14,8 +14,8 @@ from lamp.SubLayers import PLoss
 
 def train_epoch(model,train_data, crit, optimizer,adv_optimizer,epoch,data_dict,opt,logger):
     ##added attention_decay
-    p=opt.p
-        
+    if opt.ploss:
+        ploss=PLoss(opt.ploss).apply
     model.train()
     out_len = (opt.tgt_vocab_size) if opt.binary_relevance else (opt.tgt_vocab_size-1)
     all_predictions = torch.zeros(len(train_data._src_insts),out_len)
@@ -33,15 +33,23 @@ def train_epoch(model,train_data, crit, optimizer,adv_optimizer,epoch,data_dict,
             if opt.binary_relevance:
                 gold_binary = utils.get_gold_binary(gold.data.cpu(),opt.tgt_vocab_size).cuda()
                 optimizer.zero_grad()
-                pred,enc_output,*results = model(src,adj,None,gold_binary,return_attns=opt.attns_loss,int_preds=opt.int_preds)
+                pred,enc_output,_,dec_output2= model(src,adj,None,gold_binary,return_attns=True,int_preds=opt.int_preds)
+                dec_self_attn,dec_enc_attn=dec_output2
+                                
+                logger.push_attentions(dec_self_attn[1])
+                
                 norm_pred = F.sigmoid(pred)
                 bce_loss =  F.binary_cross_entropy_with_logits(pred, gold_binary,reduction='mean')
-                loss+= bce_loss;logger.push_loss(loss)
+                loss+= bce_loss
                 bce_total += bce_loss.item()
                 if opt.int_preds and not opt.matching_mlp:
                     for i in range(len(results[0])):
                         bce_loss =  F.binary_cross_entropy_with_logits(results[0][i], gold_binary,reduction='mean')
                         loss += (opt.int_pred_weight)*bce_loss
+                
+                if opt.ploss:
+                    loss+=opt.p_coef*ploss(dec_self_attn[1].sum(axis=0).view(-1))
+                    
                 if epoch == opt.thresh1:
                     opt.init_model = copy.deepcopy(model)
                 loss.backward()
@@ -60,7 +68,7 @@ def train_epoch(model,train_data, crit, optimizer,adv_optimizer,epoch,data_dict,
                 loss ,_= crit(F.log_softmax(pred), gold.contiguous().view(-1)),logger.push_loss(loss)
                 
                 if opt.ploss:
-                    loss+=opt.p_coef*PLoss(opt.p,dec_self_attn.view(-1))
+                    loss+=opt.p_coef*PLoss(opt.p,dec_self_attn.sum(axis=0).view(-1))
                 pred = F.softmax(pred,dim=1)
                 pred_vals,pred_idxs = pred.max(1)
                 pred_vals = pred_vals.view(gold.size()).data.cpu()

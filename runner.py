@@ -144,10 +144,14 @@ def run_model(
 #        if not 'test' in opt.model_name and not opt.test_only:
  #           utils.save_model(opt, epoch_i, model, valid_loss,
   #                           valid_losses)
+    
+    summary=Summary(opt)
+    summary.add_log(train_logger.log)
+    summary.add_log(valid_logger.log)
+    torch.save(train_logger.log,'experiments/'+opt.exo_name+'train')
+    torch.save(valid_logger.log,'experiments/'+opt.exo_name+'valid')
 
-        summary.add_log(train_logger.log)
-        summary.add_log(valid_logger.log)
-        summary.close()
+    summary.close()
 """
         loss_file.write(str(int(epoch_i + 1)))
         loss_file.write(',' + str(train_loss))

@@ -9,7 +9,6 @@ python preprocess.py -train_src ../data/reuters/train_inputs.txt -train_tgt ../d
 """
 
 def read_adj_matrix(inst_file):
-
     word_insts = []
     with open(inst_file) as f:
         for sent in f:

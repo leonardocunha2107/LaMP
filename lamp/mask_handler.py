@@ -19,11 +19,16 @@ class TrimHandler:
             self.log[-1]/=self.cache_every ##maybe will create disappearing of attentions in graph?
             self.log.append(self.cache=torch.zeros(num_nodes,num_nodes))
         """
-        if self.t>=self.crop_every==0:
+        if self.t>=self.crop_every:
             self.cache/=self.cache.sum()
-            idx=self.cache<self.eps/self.n  ##eps * 1/n
+            self.t=0
+            print("Cache\n",self.cache)
+            idx=self.cache<(self.eps/(self.n))  ##eps * 1/n
             self.graph[idx]=0
-            self.n-=idx.sum().data
+            self.n=self.num_nodes**2-int(idx.sum())
+            print("Graph Updated\n",self.graph)
+            print("num_connections",self.n)
+
 
             self.cache=torch.zeros(self.num_nodes,self.num_nodes)
     def get_mask(self,batch_size):

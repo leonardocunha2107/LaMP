@@ -19,7 +19,7 @@ class Logger:
     def push_attentions(self,att):
         with torch.no_grad():
             self.att[0]+=att.cpu().sum(axis=0)
-            self.att[1]+=att.size(0)
+            self.att[1]+=att.shape[0]
             if self.att[1]>=self.mean_every:
                 self.att_log.append(self.att[0]/self.att[1])
                 self.att=[torch.zeros(self.num_nodes,self.num_nodes),0]
@@ -28,16 +28,16 @@ class Summary:
     def __init__(self,opt):
         self.exp_name=opt.exo_name if opt.exo_name else "base_exp"
         
-        self.sw=SummaryWriter('experiments/'+self.exp_name)
+        self.sw=SummaryWriter('experiments/')
     def add_log(self,log):
-        tag=self.exp_name+log['tag']
+        tag=self.exp_name+'/'+log['tag']
         #print(log)
         #for i,loss in enumerate(log['loss']):
         #    self.sw.add_scalars(tag,{'loss':loss},i)
         for i,md in enumerate(log['metrics']):
             self.sw.add_scalars(tag,md,i)
         for i,att in enumerate(log['att']):
-            self.sw.add_image(tag,att,i)
+            self.sw.add_image(tag,255*att,i,dataformats='HW')
         
     def close(self):
         self.sw.close()

@@ -4,13 +4,21 @@ from pdb import set_trace as stop
 import numpy as np
 
 class PLoss(torch.autograd.Function):
-    def forward(ctx,p,x):
-        ctx.save_for_backward(p,x)
-        return (x**p).sum()**(1/p)
+    p=None
+    def __init__(self,p):
+        PLoss.p=p
+        super(PLoss,self).__init__()
+    @staticmethod
+    def forward(ctx,x):
+        ctx.save_for_backward(x)
+        return (x**PLoss.p).sum()**(1/PLoss.p)
+    
+    @staticmethod
     def backward(ctx,outgrad):
-        p,x=ctx
-        a0=p**(p/(1-p))
-        return a0/(p-1)*outgrad/(x**(p-1))
+        x,=ctx.saved_tensors
+        a0=PLoss.p**(PLoss.p/(1-PLoss.p))
+        return a0/(PLoss.p-1)*outgrad/(x**(PLoss.p-1))
+    
 class XavierLinear(nn.Module):
     def __init__(self, d_in, d_out, bias=True):
         super(XavierLinear, self).__init__()
@@ -44,7 +52,7 @@ class ScaledDotProductAttention(nn.Module):
 
 
         attn = self.attn_type(attn)
-        attn = self.dropout(attn)
+        #attn = self.dropout(attn)
         output = torch.bmm(attn, v)
 
         return output, attn

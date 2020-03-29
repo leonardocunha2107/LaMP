@@ -12,13 +12,13 @@ from os import path
 
 def process_data(data,opt):
     label_adj_matrix = None
-    if (opt.adj_matrix_lambda > 0):
+    """if (opt.adj_matrix_lambda > 0):
         print('using heirarchy mask')
         if 'rcv1' in opt.dataset:
             label_adj_matrix = utils.get_pairwise_adj_rcv1(data['dict']['tgt'],path.join(opt.dataset,'tf_interactions.tsv'))
         else:
-            label_adj_matrix = utils.get_pairwise_adj(data['dict']['tgt'],path.join(opt.dataset,'tf_interactions.tsv'))
-    elif opt.label_mask == 'prior':
+            label_adj_matrix = utils.get_pairwise_adj(data['dict']['tgt'],path.join(opt.dataset,'tf_interactions.tsv'))"""
+    if opt.label_mask == 'prior':
         print('using prior mask')
         # train_matrix = torch.zeros(len(data['train']['tgt']),len(data['dict']['tgt']))
         # for i in range(len(data['train']['tgt'])):
